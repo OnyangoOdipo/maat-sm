@@ -9,6 +9,11 @@ use App\Http\Controllers\StudentPerformanceController;
 use App\Http\Controllers\ClassController;
 use App\Http\Controllers\TeacherController;
 use App\Http\Controllers\SubjectController;
+use App\Http\Controllers\VehicleController;
+use App\Http\Controllers\DriverController;
+use App\Http\Controllers\RouteController;
+use App\Http\Controllers\RouteStopController;
+use App\Http\Controllers\RouteAssignmentController;
 use Illuminate\Support\Facades\Route;
 
 Route::get('/', function () {
@@ -68,6 +73,15 @@ Route::middleware(['auth'])->group(function () {
     Route::get('/school-types', function () {
         return view('school.types');
     })->name('school.types');
+
+    // Transport Management Routes
+    Route::prefix('transport')->name('transport.')->group(function () {
+        Route::resource('vehicles', VehicleController::class);
+        Route::resource('drivers', DriverController::class);
+        Route::resource('routes', RouteController::class);
+        Route::resource('route-stops', RouteStopController::class)->except(['index']);
+        Route::resource('route-assignments', RouteAssignmentController::class);
+    });
 });
 
 require __DIR__.'/auth.php';

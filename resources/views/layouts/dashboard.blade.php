@@ -71,6 +71,67 @@
                             </a>
                         </div>
                     </div>
+
+                    <!-- Educational Settings Section -->
+                    <div x-data="{ open: true }" class="px-3 mt-4">
+                        <button @click="open = !open" class="flex items-center justify-between w-full px-4 py-2 text-gray-600 hover:bg-gray-100 rounded-lg">
+                            <div class="flex items-center">
+                                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4"></path>
+                                </svg>
+                                <span class="ml-3">Educational Settings</span>
+                            </div>
+                            <svg class="w-4 h-4 transition-transform" :class="{ 'rotate-180': open }" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"></path>
+                            </svg>
+                        </button>
+
+                        <!-- Educational Settings Dropdown -->
+                        <div x-show="open" class="mt-2 space-y-1 px-3">
+                            <!-- Day Section -->
+                            <div x-data="{ open: false }" class="space-y-1">
+                                <button @click="open = !open" class="bg-gray-100 hover:bg-gray-200 w-full text-left px-4 py-2 text-sm font-medium text-gray-900 rounded-md focus:outline-none">
+                                    {{ __('Day Section') }}
+                                    <svg class="float-right h-5 w-5" x-bind:class="{ 'transform rotate-180': open }" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7" />
+                                    </svg>
+                                </button>
+                                
+                                <div x-show="open" class="pl-4 space-y-1">
+                                    <!-- Transport Management Section -->
+                                    <div x-data="{ transportOpen: false }" class="space-y-1">
+                                        <button @click="transportOpen = !transportOpen" class="w-full text-left px-4 py-2 text-sm text-gray-700 hover:bg-gray-100 focus:outline-none">
+                                            {{ __('Transport Management') }}
+                                            <svg class="float-right h-4 w-4" x-bind:class="{ 'transform rotate-180': transportOpen }" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7" />
+                                            </svg>
+                                        </button>
+                                        
+                                        <div x-show="transportOpen" class="pl-4 space-y-1">
+                                            <a href="{{ route('transport.vehicles.index') }}" class="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100">
+                                                {{ __('Vehicles') }}
+                                            </a>
+                                            <a href="{{ route('transport.drivers.index') }}" class="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100">
+                                                {{ __('Drivers') }}
+                                            </a>
+                                            <a href="{{ route('transport.routes.index') }}" class="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100">
+                                                {{ __('Routes') }}
+                                            </a>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <!-- Boarding Section -->
+                            <a href="{{ route('school.types', ['category' => 'boarding']) }}" 
+                               class="flex items-center px-4 py-2 text-gray-600 hover:bg-gray-100 rounded-lg {{ request()->routeIs('school.types') && request()->category === 'boarding' ? 'bg-gray-100' : '' }}">
+                                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6"></path>
+                                </svg>
+                                <span class="ml-3">Boarding Section</span>
+                            </a>
+                        </div>
+                    </div>
                 </nav>
 
                 <!-- User Profile -->

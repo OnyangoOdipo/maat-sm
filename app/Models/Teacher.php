@@ -13,6 +13,7 @@ class Teacher extends Model
     protected $fillable = [
         'user_id',
         'school_id',
+        'subject_id',
         'employee_number',
         'date_of_birth',
         'gender',
@@ -44,6 +45,11 @@ class Teacher extends Model
     public function classRooms()
     {
         return $this->hasMany(ClassRoom::class);
+    }
+
+    public function subject()
+    {
+        return $this->belongsTo(Subject::class);
     }
 
     // Scopes

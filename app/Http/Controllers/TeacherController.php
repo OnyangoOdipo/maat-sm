@@ -8,13 +8,14 @@ use App\Models\Subject;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Hash;
+use Illuminate\Support\Facades\Auth;
 
 class TeacherController extends Controller
 {
     public function index()
     {
-        $teachers = Teacher::where('school_id', 1) // Temporarily hardcoded
-            ->with('user')
+        $teachers = Teacher::with(['user', 'subject'])
+            ->where('school_id', Auth::user()->school_id)
             ->latest()
             ->paginate(10);
 
@@ -23,7 +24,11 @@ class TeacherController extends Controller
 
     public function create()
     {
-        return view('teachers.create');
+        $subjects = Subject::where('school_id', Auth::user()->school_id)
+            ->orderBy('name')
+            ->get();
+
+        return view('teachers.create', compact('subjects'));
     }
 
     public function store(Request $request)
@@ -31,19 +36,21 @@ class TeacherController extends Controller
         $validated = $request->validate([
             'name' => 'required|string|max:255',
             'email' => 'required|email|unique:users,email',
+            'phone' => 'required|string|max:255',
+            'subject_id' => 'required|exists:subjects,id',
+            'address' => 'required|string',
             'date_of_birth' => 'required|date',
             'gender' => 'required|in:male,female,other',
             'address' => 'required|string',
             'phone' => 'required|string',
             'qualification' => 'required|string',
-            'specialization' => 'required|string',
             'joining_date' => 'required|date',
             'notes' => 'nullable|string'
         ]);
 
         DB::transaction(function () use ($validated) {
             // Generate employee number
-            $latestTeacher = Teacher::where('school_id', 1)
+            $latestTeacher = Teacher::where('school_id', Auth::user()->school_id)
                 ->orderBy('id', 'desc')
                 ->first();
             
@@ -58,22 +65,24 @@ class TeacherController extends Controller
             $user = User::create([
                 'name' => $validated['name'],
                 'email' => $validated['email'],
-                'password' => Hash::make('password'), // Default password
+                'password' => bcrypt('password'), // Set default password
                 'role' => 'teacher',
-                'school_id' => 1, // Temporarily hardcoded
+                'school_id' => Auth::user()->school_id,
             ]);
 
             // Create teacher record
             Teacher::create([
                 'user_id' => $user->id,
-                'school_id' => 1, // Temporarily hardcoded
+                'school_id' => Auth::user()->school_id,
+                'subject_id' => $validated['subject_id'],
+                'phone' => $validated['phone'],
+                'address' => $validated['address'],
                 'employee_number' => $employeeNumber,
                 'date_of_birth' => $validated['date_of_birth'],
                 'gender' => $validated['gender'],
                 'address' => $validated['address'],
                 'phone' => $validated['phone'],
                 'qualification' => $validated['qualification'],
-                'specialization' => $validated['specialization'],
                 'joining_date' => $validated['joining_date'],
                 'status' => 'active',
                 'notes' => $validated['notes']
@@ -86,12 +95,28 @@ class TeacherController extends Controller
 
     public function show(Teacher $teacher)
     {
+        // Eager load necessary relationships
+        $teacher->load([
+            'user',
+            'subject',
+            'classRooms',
+            'classRooms.classLevel'  // If you need class level info
+        ]);
+
+        // Verify teacher belongs to current school
+        if ($teacher->school_id !== Auth::user()->school_id) {
+            abort(403);
+        }
+
         return view('teachers.show', compact('teacher'));
     }
 
     public function edit(Teacher $teacher)
     {
-        $subjects = Subject::all();
+        $subjects = Subject::where('school_id', Auth::user()->school_id)
+            ->orderBy('name')
+            ->get();
+
         return view('teachers.edit', compact('teacher', 'subjects'));
     }
 

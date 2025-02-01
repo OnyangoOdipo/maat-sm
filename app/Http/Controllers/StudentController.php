@@ -5,13 +5,14 @@ namespace App\Http\Controllers;
 use App\Models\Student;
 use App\Models\ClassRoom;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Auth;
 
 class StudentController extends Controller
 {
     public function index()
     {
-        $students = Student::where('school_id', auth()->user()->school_id)
-            ->with(['user', 'class'])
+        $students = Student::with('class')
+            ->where('school_id', Auth::user()->school_id)
             ->latest()
             ->paginate(10);
 
