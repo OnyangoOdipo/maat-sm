@@ -14,6 +14,7 @@
     <!-- Scripts -->
     @vite(['resources/css/app.css', 'resources/js/app.js'])
 </head>
+
 <body class="font-sans antialiased" x-data="{ isSidebarOpen: false }">
     <div class="min-h-screen bg-gray-100">
         <!-- Sidebar -->
@@ -40,7 +41,7 @@
                             </svg>
                         </button>
 
-                        <!-- Dropdown -->
+                        <!-- Academic Dropdown -->
                         <div x-show="open" class="mt-2 space-y-1 px-3">
                             <a href="{{ route('students.index') }}" class="flex items-center px-4 py-2 text-gray-600 hover:bg-gray-100 rounded-lg {{ request()->routeIs('students.*') ? 'bg-gray-100' : '' }}">
                                 <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -130,6 +131,57 @@
                                 </svg>
                                 <span class="ml-3">Boarding Section</span>
                             </a>
+                        </div>
+                    </div>
+
+                    <!-- Examination & Timetabling Section -->
+                    <div x-data="{ open: false }" class="px-3 mt-4">
+                        <button @click="open = !open" class="flex items-center justify-between w-full px-4 py-2 text-gray-600 hover:bg-gray-100 rounded-lg">
+                            <div class="flex items-center">
+                                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2"></path>
+                                </svg>
+                                <span class="ml-3">Examination & Timetabling</span>
+                            </div>
+                            <svg class="w-4 h-4 transition-transform" :class="{ 'rotate-180': open }" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7" />
+                            </svg>
+                        </button>
+
+                        <div x-show="open" class="mt-2 space-y-1 px-3">
+                            <!-- Examination Section -->
+                            <div x-data="{ examOpen: false }" class="space-y-1">
+                                <button @click="examOpen = !examOpen" class="w-full text-left px-4 py-2 text-sm text-gray-700 hover:bg-gray-100 focus:outline-none">
+                                    {{ __('Examination') }}
+                                    <svg class="float-right h-4 w-4" x-bind:class="{ 'transform rotate-180': examOpen }" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7" />
+                                    </svg>
+                                </button>
+                                
+                                <div x-show="examOpen" class="pl-4 space-y-1">
+                                    <a href="#" class="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100">{{ __('Exam List') }}</a>
+                                    <a href="#" class="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100">{{ __('Exam Types') }}</a>
+                                    <a href="#" class="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100">{{ __('Exam Schedule') }}</a>
+                                    <a href="#" class="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100">{{ __('Results') }}</a>
+                                </div>
+                            </div>
+
+                            <!-- Timetabling Section -->
+                            <div x-data="{ timetableOpen: false }" class="space-y-1">
+                                <button @click="timetableOpen = !timetableOpen" class="w-full text-left px-4 py-2 text-sm text-gray-700 hover:bg-gray-100 focus:outline-none">
+                                    {{ __('Timetabling') }}
+                                    <svg class="float-right h-4 w-4" x-bind:class="{ 'transform rotate-180': timetableOpen }" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7" />
+                                    </svg>
+                                </button>
+                                
+                                <div x-show="timetableOpen" class="pl-4 space-y-1">
+                                    <a href="{{ route('timeslots.index') }}" class="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100">{{ __('Time Slots') }}</a>
+                                    <a href="#" class="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100">{{ __('Generate Timetable') }}</a>
+                                    <a href="#" class="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100">{{ __('View Timetables') }}</a>
+                                    <a href="#" class="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100">{{ __('Constraints') }}</a>
+                                </div>
+                            </div>
                         </div>
                     </div>
                 </nav>
