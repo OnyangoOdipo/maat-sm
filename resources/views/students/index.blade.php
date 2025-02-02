@@ -68,7 +68,7 @@
                             <div class="flex items-center">
                                 <div>
                                     <div class="text-sm font-medium text-gray-900">
-                                        {{ $student->user->name }}
+                                        {{ $student->user->fullname }}
                                     </div>
                                     <div class="text-sm text-gray-500">
                                         {{ $student->user->email }}

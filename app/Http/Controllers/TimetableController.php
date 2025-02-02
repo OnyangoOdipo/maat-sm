@@ -10,6 +10,7 @@ use App\Models\Teacher;
 use App\Models\TimeSlot;
 use App\Services\TimetableGenerator;
 use Illuminate\Http\Request;
+use App\Events\TimetableGenerationProgress;
 
 class TimetableController extends Controller
 {
@@ -55,8 +56,14 @@ class TimetableController extends Controller
             'is_active' => true
         ]);
 
-        // Initialize timetable generator service
+        // Initialize timetable generator service with progress tracking
         $generator = new TimetableGenerator($timetable);
+        
+        // Set up progress callback
+        $generator->setProgressCallback(function($progress) {
+            // Broadcast progress to frontend
+            broadcast(new TimetableGenerationProgress($progress))->toOthers();
+        });
         
         // Generate timetable
         $slots = $generator->generate();
@@ -67,12 +74,20 @@ class TimetableController extends Controller
 
     public function show(Timetable $timetable)
     {
-        $timetable->load(['slots.timeslot', 'slots.subject', 'slots.teacher', 'slots.classroom']);
-        
-        $slots = $timetable->slots->groupBy(function($slot) {
-            return $slot->timeslot->day;
-        });
+        // Get all slots grouped by day
+        $slots = $timetable->slots()
+            ->with(['timeSlot', 'subject', 'teacher', 'classroom'])
+            ->get()
+            ->groupBy(function($slot) {
+                return $slot->timeSlot->day;
+            });
 
-        return view('timetables.show', compact('timetable', 'slots'));
+        // Get unique time slots for the header
+        $timeSlots = TimeSlot::where('class_level_id', $timetable->class_level_id)
+            ->orderBy('start_time')
+            ->get()
+            ->groupBy('day');
+
+        return view('timetables.show', compact('timetable', 'slots', 'timeSlots'));
     }
 } 

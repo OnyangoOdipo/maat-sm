@@ -177,8 +177,8 @@
                                 
                                 <div x-show="timetableOpen" class="pl-4 space-y-1">
                                     <a href="{{ route('timeslots.index') }}" class="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100">{{ __('Time Slots') }}</a>
-                                    <a href="#" class="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100">{{ __('Generate Timetable') }}</a>
-                                    <a href="#" class="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100">{{ __('View Timetables') }}</a>
+                                    <a href="{{ route('timetables.create') }}" class="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100">{{ __('Generate Timetable') }}</a>
+                                    <a href="{{ route('timetables.index') }}" class="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100">{{ __('View Timetables') }}</a>
                                     <a href="#" class="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100">{{ __('Constraints') }}</a>
                                 </div>
                             </div>

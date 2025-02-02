@@ -3,6 +3,8 @@
 namespace App\Models;
 
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\Relations\BelongsTo;
+use Illuminate\Database\Eloquent\Relations\HasMany;
 
 class Timetable extends Model
 {
@@ -14,13 +16,13 @@ class Timetable extends Model
         'is_active'
     ];
 
-    public function slots()
-    {
-        return $this->hasMany(TimetableSlot::class);
-    }
-
-    public function classLevel()
+    public function classLevel(): BelongsTo
     {
         return $this->belongsTo(ClassLevel::class);
+    }
+
+    public function slots(): HasMany
+    {
+        return $this->hasMany(TimetableSlot::class);
     }
 } 

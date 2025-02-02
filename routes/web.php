@@ -15,6 +15,8 @@ use App\Http\Controllers\RouteController;
 use App\Http\Controllers\RouteStopController;
 use App\Http\Controllers\RouteAssignmentController;
 use App\Http\Controllers\TimeSlotController;
+use App\Http\Controllers\TimetableController;
+use App\Http\Controllers\Auth\LoginController;
 use Illuminate\Support\Facades\Route;
 
 Route::get('/', function () {
@@ -89,6 +91,14 @@ Route::middleware(['auth'])->group(function () {
     Route::get('/timeslots/create', [TimeSlotController::class, 'create'])->name('timeslots.create');
     Route::post('/timeslots/generate', [TimeSlotController::class, 'generateTimeslots'])->name('timeslots.generate');
     Route::post('/timeslots', [TimeSlotController::class, 'store'])->name('timeslots.store');
+
+    // Timetable routes
+    Route::prefix('timetables')->name('timetables.')->group(function () {
+        Route::get('/', [TimetableController::class, 'index'])->name('index');
+        Route::get('/create', [TimetableController::class, 'create'])->name('create');
+        Route::post('/generate', [TimetableController::class, 'generate'])->name('generate');
+        Route::get('/{timetable}', [TimetableController::class, 'show'])->name('show');
+    });
 });
 
 require __DIR__.'/auth.php';
