@@ -11,6 +11,7 @@ use App\Http\Controllers\TeacherController;
 use App\Http\Controllers\SubjectController;
 use App\Http\Controllers\VehicleController;
 use App\Http\Controllers\DriverController;
+use App\Http\Controllers\RolePermissionController;
 use App\Http\Controllers\RouteController;
 use App\Http\Controllers\RouteStopController;
 use App\Http\Controllers\RouteAssignmentController;
@@ -29,7 +30,7 @@ Route::middleware('guest')->group(function () {
 // Authenticated routes
 Route::middleware(['auth'])->group(function () {
     Route::post('logout', 'Auth\LoginController@logout')->name('logout');
-    
+
     // Profile routes
     Route::get('/profile', [ProfileController::class, 'edit'])->name('profile.edit');
     Route::patch('/profile', [ProfileController::class, 'update'])->name('profile.update');
@@ -52,10 +53,10 @@ Route::middleware(['auth'])->group(function () {
         Route::get('/{student}/edit', [StudentController::class, 'edit'])->name('students.edit');
         Route::put('/{student}', [StudentController::class, 'update'])->name('students.update');
         Route::delete('/{student}', [StudentController::class, 'destroy'])->name('students.destroy');
-        
+
         // Attendance routes
         Route::get('/{student}/attendance', [StudentAttendanceController::class, 'index'])->name('students.attendance');
-        
+
         // Academic Performance routes
         Route::get('/{student}/performance', [StudentPerformanceController::class, 'index'])->name('students.performance');
     });
@@ -82,6 +83,16 @@ Route::middleware(['auth'])->group(function () {
         Route::resource('route-stops', RouteStopController::class)->except(['index']);
         Route::resource('route-assignments', RouteAssignmentController::class);
     });
+
+    // Roles and Permissions routes
+    Route::get('/roles-permissions', [RolePermissionController::class, 'index'])->name('roles.permissions');
+    Route::get('/assign-permissions', [RolePermissionController::class, 'assignRolesView'])->name('assign.permissions')->middleware('role:Admin'); // Example of using role middleware
+    
+    // TODO: Move the following routes to an API route file
+    Route::post('/api/assign-roles', [RolePermissionController::class, 'assignRoles'])->name('assign.role');
+    Route::post('/api/{type}/store', [RolePermissionController::class, 'storePermissionOrRole'])->name('permissions.store');
+    Route::post('/api/roles/{role}/permissions', [RolePermissionController::class, 'updatePermissions'])->name('roles.permissions.update');
+    Route::delete('/api/permissions/{permission}', [RolePermissionController::class, 'deletePermission'])->name('permissions.delete');
 });
 
-require __DIR__.'/auth.php';
+require __DIR__ . '/auth.php';
