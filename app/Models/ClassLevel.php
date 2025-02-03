@@ -11,8 +11,10 @@ class ClassLevel extends Model
 
     protected $fillable = [
         'school_id',
+        'section_id',
         'name',
         'numeric_value',
+        'order',
         'is_active'
     ];
 
@@ -25,16 +27,21 @@ class ClassLevel extends Model
         return $this->belongsTo(School::class);
     }
 
+    public function section()
+    {
+        return $this->belongsTo(Section::class);
+    }
+
+    public function classrooms()
+    {
+        return $this->hasMany(ClassRoom::class);
+    }
+
     public function subjects()
     {
         return $this->belongsToMany(Subject::class, 'class_level_subjects')
             ->withPivot('lessons_per_week', 'is_compulsory')
             ->withTimestamps();
-    }
-
-    public function classrooms()
-    {
-        return $this->hasMany(Classroom::class);
     }
 
     public function timeslots()

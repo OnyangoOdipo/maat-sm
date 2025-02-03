@@ -13,9 +13,19 @@ class Subject extends Model
         'school_id',
         'name',
         'code',
-        'subject_type',
-        'status'
+        'description',
+        'status',
+        'subject_type'
     ];
+
+    protected $casts = [
+        'status' => 'string'
+    ];
+
+    public function curriculumTypes()
+    {
+        return $this->belongsToMany(CurriculumType::class, 'curriculum_type_subject');
+    }
 
     public function school()
     {
@@ -24,15 +34,14 @@ class Subject extends Model
 
     public function teachers()
     {
-        return $this->belongsToMany(Teacher::class, 'teacher_subjects')
-            ->withPivot('is_primary')
+        return $this->belongsToMany(Teacher::class, 'subject_teacher')
             ->withTimestamps();
     }
 
     public function classLevels()
     {
-        return $this->belongsToMany(ClassLevel::class, 'class_level_subjects')
-            ->withPivot('lessons_per_week', 'is_compulsory')
+        return $this->belongsToMany(ClassLevel::class, 'class_level_subject')
+            ->withPivot('is_compulsory')
             ->withTimestamps();
     }
 
