@@ -24,7 +24,8 @@
                 <select id="section_id" name="section_id" class="mt-1 block w-full rounded-md border-gray-300" required>
                     <option value="">Select Section</option>
                     @foreach($sections as $section)
-                        <option value="{{ $section->id }}" {{ $class->section_id == $section->id ? 'selected' : '' }}>
+                        <option value="{{ $section->id }}" 
+                            {{ old('section_id', $class->classLevel->section_id) == $section->id ? 'selected' : '' }}>
                             {{ $section->name }}
                         </option>
                     @endforeach
@@ -39,8 +40,9 @@
                 <label for="class_level_id" class="block text-sm font-medium text-gray-700">Class Level</label>
                 <select id="class_level_id" name="class_level_id" class="mt-1 block w-full rounded-md border-gray-300" required>
                     <option value="">Select Class Level</option>
-                    @foreach($class->section->classLevels as $level)
-                        <option value="{{ $level->id }}" {{ $class->class_level_id == $level->id ? 'selected' : '' }}>
+                    @foreach($classLevels as $level)
+                        <option value="{{ $level->id }}" 
+                            {{ old('class_level_id', $class->class_level_id) == $level->id ? 'selected' : '' }}>
                             {{ $level->name }}
                         </option>
                     @endforeach
@@ -53,7 +55,8 @@
             <!-- Stream -->
             <div class="mb-6">
                 <label for="stream" class="block text-sm font-medium text-gray-700">Stream</label>
-                <input type="text" id="stream" name="stream" value="{{ $class->stream }}" 
+                <input type="text" id="stream" name="stream" 
+                       value="{{ old('stream', $class->stream) }}" 
                        class="mt-1 block w-full rounded-md border-gray-300" required>
                 @error('stream')
                     <p class="mt-1 text-sm text-red-600">{{ $message }}</p>
@@ -63,7 +66,8 @@
             <!-- Capacity -->
             <div class="mb-6">
                 <label for="capacity" class="block text-sm font-medium text-gray-700">Capacity</label>
-                <input type="number" id="capacity" name="capacity" value="{{ $class->capacity }}"
+                <input type="number" id="capacity" name="capacity" 
+                       value="{{ old('capacity', $class->capacity) }}"
                        class="mt-1 block w-full rounded-md border-gray-300">
                 @error('capacity')
                     <p class="mt-1 text-sm text-red-600">{{ $message }}</p>
@@ -76,7 +80,8 @@
                 <select id="teacher_id" name="teacher_id" class="mt-1 block w-full rounded-md border-gray-300">
                     <option value="">Select Teacher</option>
                     @foreach($teachers as $teacher)
-                        <option value="{{ $teacher->id }}" {{ $class->teacher_id == $teacher->id ? 'selected' : '' }}>
+                        <option value="{{ $teacher->id }}" 
+                            {{ old('teacher_id', $class->teacher_id) == $teacher->id ? 'selected' : '' }}>
                             {{ $teacher->user->name }}
                         </option>
                     @endforeach
@@ -89,7 +94,8 @@
             <!-- Room Number -->
             <div class="mb-6">
                 <label for="room_number" class="block text-sm font-medium text-gray-700">Room Number</label>
-                <input type="text" id="room_number" name="room_number" value="{{ $class->room_number }}"
+                <input type="text" id="room_number" name="room_number" 
+                       value="{{ old('room_number', $class->room_number) }}"
                        class="mt-1 block w-full rounded-md border-gray-300">
                 @error('room_number')
                     <p class="mt-1 text-sm text-red-600">{{ $message }}</p>
@@ -100,8 +106,8 @@
             <div class="mb-6">
                 <label for="status" class="block text-sm font-medium text-gray-700">Status</label>
                 <select id="status" name="status" class="mt-1 block w-full rounded-md border-gray-300" required>
-                    <option value="active" {{ $class->status === 'active' ? 'selected' : '' }}>Active</option>
-                    <option value="inactive" {{ $class->status === 'inactive' ? 'selected' : '' }}>Inactive</option>
+                    <option value="active" {{ old('status', $class->status) === 'active' ? 'selected' : '' }}>Active</option>
+                    <option value="inactive" {{ old('status', $class->status) === 'inactive' ? 'selected' : '' }}>Inactive</option>
                 </select>
                 @error('status')
                     <p class="mt-1 text-sm text-red-600">{{ $message }}</p>

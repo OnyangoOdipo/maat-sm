@@ -212,9 +212,160 @@ class StudentController extends Controller
             abort(403, 'Unauthorized action.');
         }
         
-        $student->load(['user', 'class', 'attendances', 'performances']);
+        // Load all necessary relationships with error handling
+        $student->load([
+            'user',
+            'class.classLevel' // Eager load both class and its classLevel
+        ]);
         
         return view('students.show', compact('student'));
+    }
+
+    public function edit(Student $student)
+    {
+        // Check if user has permission to edit this student
+        if (Auth::user()->school_id !== $student->school_id) {
+            abort(403, 'Unauthorized action.');
+        }
+
+        // Load the student with necessary relationships
+        $student->load(['user', 'class.classLevel']);
+
+        // Get classes for the dropdown
+        $classes = ClassRoom::where('school_id', Auth::user()->school_id)
+            ->with('classLevel')
+            ->get();
+
+        return view('students.edit', compact('student', 'classes'));
+    }
+
+    public function update(Request $request, Student $student)
+    {
+        // Check if user has permission to update this student
+        if (Auth::user()->school_id !== $student->school_id) {
+            abort(403, 'Unauthorized action.');
+        }
+
+        try {
+            $validated = $request->validate([
+                // User table fields
+                'name' => 'required|string|max:255',
+                'email' => 'required|email|unique:users,email,' . $student->user_id,
+
+                // Student table fields
+                'classroom_id' => 'required|exists:classrooms,id',
+                'date_of_birth' => 'required|date',
+                'gender' => 'required|in:male,female,other',
+                'address' => 'required|string',
+                'phone' => 'nullable|string',
+                
+                // Parent information
+                'parent_name' => 'required|string',
+                'parent_phone' => 'required|string',
+                'parent_email' => 'nullable|email',
+                'parent_occupation' => 'nullable|string',
+                'parent_relationship' => 'required|in:father,mother,guardian',
+                
+                // Emergency contact
+                'emergency_contact_name' => 'nullable|string',
+                'emergency_contact_phone' => 'nullable|string',
+                'emergency_contact_relationship' => 'nullable|string',
+                
+                // Medical information
+                'medical_conditions' => 'nullable|string',
+                'allergies' => 'nullable|string',
+                'blood_group' => 'nullable|string',
+                
+                // Additional information
+                'admission_date' => 'required|date',
+                'status' => 'required|in:active,inactive,graduated,transferred',
+                'previous_school' => 'nullable|string',
+                'notes' => 'nullable|string',
+            ]);
+
+            DB::beginTransaction();
+
+            // Update user information
+            $student->user->update([
+                'name' => $validated['name'],
+                'email' => $validated['email'],
+            ]);
+
+            // Update student information
+            $student->update([
+                'classroom_id' => $validated['classroom_id'],
+                'date_of_birth' => $validated['date_of_birth'],
+                'gender' => $validated['gender'],
+                'address' => $validated['address'],
+                'phone' => $validated['phone'],
+                'parent_name' => $validated['parent_name'],
+                'parent_phone' => $validated['parent_phone'],
+                'parent_email' => $validated['parent_email'],
+                'parent_occupation' => $validated['parent_occupation'],
+                'parent_relationship' => $validated['parent_relationship'],
+                'emergency_contact_name' => $validated['emergency_contact_name'],
+                'emergency_contact_phone' => $validated['emergency_contact_phone'],
+                'emergency_contact_relationship' => $validated['emergency_contact_relationship'],
+                'medical_conditions' => $validated['medical_conditions'],
+                'allergies' => $validated['allergies'],
+                'blood_group' => $validated['blood_group'],
+                'admission_date' => $validated['admission_date'],
+                'status' => $validated['status'],
+                'previous_school' => $validated['previous_school'],
+                'notes' => $validated['notes'],
+            ]);
+
+            DB::commit();
+
+            return redirect()->route('students.show', $student)
+                ->with('success', 'Student updated successfully.');
+        } catch (\Exception $e) {
+            DB::rollBack();
+            \Log::error('Error updating student', [
+                'error' => $e->getMessage(),
+                'trace' => $e->getTraceAsString(),
+                'request' => $request->all()
+            ]);
+
+            return back()
+                ->withInput()
+                ->withErrors(['error' => 'Error updating student: ' . $e->getMessage()]);
+        }
+    }
+
+    public function destroy(Student $student)
+    {
+        // Check if user has permission to delete this student
+        if (Auth::user()->school_id !== $student->school_id) {
+            abort(403, 'Unauthorized action.');
+        }
+
+        try {
+            DB::beginTransaction();
+
+            // Get the user ID before deleting the student
+            $userId = $student->user_id;
+
+            // Delete the student record (this will use soft delete if configured)
+            $student->delete();
+
+            // Delete the associated user account
+            User::find($userId)->delete();
+
+            DB::commit();
+
+            return redirect()->route('students.index')
+                ->with('success', 'Student deleted successfully.');
+        } catch (\Exception $e) {
+            DB::rollBack();
+            \Log::error('Error deleting student', [
+                'error' => $e->getMessage(),
+                'trace' => $e->getTraceAsString(),
+                'student_id' => $student->id
+            ]);
+
+            return back()->withErrors(['error' => 'Error deleting student: ' . $e->getMessage()]);
+        }
     }
 
     // ... other methods

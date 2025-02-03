@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use App\Models\School;
 use App\Models\Teacher;
 use App\Models\ClassRoom;
+use App\Models\Section;
 
 class DashboardController extends Controller
 {
@@ -23,28 +24,14 @@ class DashboardController extends Controller
 
     public function schooladmin()
     {
-        // Initialize empty stats in case school is not found
-        $stats = [
-            'total_teachers' => 0,
-            'total_classes' => 0,
-            'active_teachers' => 0,
-        ];
-        
-        $recent_teachers = collect(); // Empty collection
+        $school = auth()->user()->school;
+        $sections = Section::where('school_id', $school->id)
+            ->with(['classLevels.classrooms' => function($query) {
+                $query->withCount('students');
+            }])
+            ->get();
 
-        // Only try to get stats if user has a school
-        if (auth()->user() && auth()->user()->school) {
-            $school = auth()->user()->school;
-            $stats = [
-                'total_teachers' => $school->teachers()->count(),
-                'total_classes' => $school->classRooms()->count(),
-                'active_teachers' => $school->teachers()->where('status', 'active')->count(),
-            ];
-            
-            $recent_teachers = $school->teachers()->latest()->take(5)->get();
-        }
-        
-        return view('dashboards.schooladmin', compact('stats', 'recent_teachers'));
+        return view('dashboard.schooladmin', compact('sections'));
     }
 
     public function teacher()

@@ -64,20 +64,6 @@
                 @enderror
             </div>
 
-            <!-- Class Teacher -->
-            <div class="mb-6">
-                <label for="teacher_id" class="block text-sm font-medium text-gray-700">Class Teacher</label>
-                <select id="teacher_id" name="teacher_id" class="mt-1 block w-full rounded-md border-gray-300">
-                    <option value="">Select Teacher</option>
-                    @foreach($teachers as $teacher)
-                        <option value="{{ $teacher->id }}">{{ $teacher->user->name }}</option>
-                    @endforeach
-                </select>
-                @error('teacher_id')
-                    <p class="mt-1 text-sm text-red-600">{{ $message }}</p>
-                @enderror
-            </div>
-
             <!-- Room Number -->
             <div class="mb-6">
                 <label for="room_number" class="block text-sm font-medium text-gray-700">Room Number</label>
@@ -88,12 +74,30 @@
                 @enderror
             </div>
 
-            <!-- Notes -->
+            <!-- Class Teacher -->
             <div class="mb-6">
-                <label for="notes" class="block text-sm font-medium text-gray-700">Notes</label>
-                <textarea id="notes" name="notes" rows="3" class="mt-1 block w-full rounded-md border-gray-300"
-                          placeholder="Any additional information"></textarea>
-                @error('notes')
+                <label for="teacher_id" class="block text-sm font-medium text-gray-700">Class Teacher</label>
+                <select id="teacher_id" name="teacher_id" class="mt-1 block w-full rounded-md border-gray-300">
+                    <option value="">Select Teacher</option>
+                    @foreach($teachers as $teacher)
+                        <option value="{{ $teacher->id }}" {{ old('teacher_id') == $teacher->id ? 'selected' : '' }}>
+                            {{ $teacher->user->name }}
+                        </option>
+                    @endforeach
+                </select>
+                @error('teacher_id')
+                    <p class="mt-1 text-sm text-red-600">{{ $message }}</p>
+                @enderror
+            </div>
+
+            <!-- Status -->
+            <div class="mb-6">
+                <label for="status" class="block text-sm font-medium text-gray-700">Status</label>
+                <select name="status" id="status" class="mt-1 block w-full rounded-md border-gray-300" required>
+                    <option value="active">Active</option>
+                    <option value="inactive">Inactive</option>
+                </select>
+                @error('status')
                     <p class="mt-1 text-sm text-red-600">{{ $message }}</p>
                 @enderror
             </div>
@@ -113,19 +117,25 @@ document.addEventListener('DOMContentLoaded', function() {
     const sectionSelect = document.getElementById('section_id');
     const classLevelSelect = document.getElementById('class_level_id');
 
-    sectionSelect.addEventListener('change', function() {
+    sectionSelect.addEventListener('change', async function() {
         const sectionId = this.value;
-        if (sectionId) {
-            fetch(`/api/sections/${sectionId}/class-levels`)
-                .then(response => response.json())
-                .then(data => {
-                    classLevelSelect.innerHTML = '<option value="">Select Class Level</option>';
-                    data.forEach(level => {
-                        classLevelSelect.innerHTML += `<option value="${level.id}">${level.name}</option>`;
-                    });
-                });
-        } else {
-            classLevelSelect.innerHTML = '<option value="">Select Class Level</option>';
+        classLevelSelect.innerHTML = '<option value="">Select Class Level</option>';
+        
+        if (!sectionId) return;
+
+        try {
+            const response = await fetch(`/api/sections/${sectionId}/class-levels`);
+            if (!response.ok) throw new Error('Failed to fetch class levels');
+            
+            const data = await response.json();
+            data.forEach(level => {
+                const option = new Option(level.name, level.id);
+                classLevelSelect.add(option);
+            });
+        } catch (error) {
+            console.error('Error:', error);
+            // Optionally show an error message to the user
+            alert('Failed to load class levels. Please try again.');
         }
     });
 });

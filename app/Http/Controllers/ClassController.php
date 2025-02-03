@@ -7,6 +7,7 @@ use App\Models\ClassLevel;
 use App\Models\ClassRoom;
 use App\Models\Teacher;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Auth;
 
 class ClassController extends Controller
 {
@@ -44,26 +45,52 @@ class ClassController extends Controller
             'capacity' => 'nullable|integer|min:1',
             'teacher_id' => 'nullable|exists:teachers,id',
             'room_number' => 'nullable|string|max:20',
-            'notes' => 'nullable|string'
+            'status' => 'required|in:active,inactive'
         ]);
 
-        $validated['school_id'] = auth()->user()->school_id;
-        $validated['status'] = 'active';
+        try {
+            $classData = [
+                'school_id' => Auth::user()->school_id,
+                'class_level_id' => $validated['class_level_id'],
+                'stream' => $validated['stream'],
+                'capacity' => $validated['capacity'],
+                'teacher_id' => $validated['teacher_id'],
+                'room_number' => $validated['room_number'],
+                'status' => $validated['status'] ?? 'active'
+            ];
 
-        ClassRoom::create($validated);
+            ClassRoom::create($classData);
 
-        return redirect()->route('classes.index')
-            ->with('success', 'Class created successfully.');
+            return redirect()->route('classes.index')
+                ->with('success', 'Class created successfully.');
+        } catch (\Exception $e) {
+            \Log::error('Error creating class', [
+                'error' => $e->getMessage(),
+                'data' => $classData ?? null
+            ]);
+
+            return back()
+                ->withInput()
+                ->withErrors(['error' => 'Error creating class: ' . $e->getMessage()]);
+        }
     }
 
     public function edit(ClassRoom $class)
     {
+        // Load necessary relationships
+        $class->load(['classLevel.section']);
+        
         $sections = Section::where('school_id', auth()->user()->school_id)->get();
         $teachers = Teacher::where('school_id', auth()->user()->school_id)
             ->with('user')
             ->get();
 
-        return view('classes.edit', compact('class', 'sections', 'teachers'));
+        // Get class levels for the current section
+        $classLevels = ClassLevel::where('section_id', $class->classLevel->section_id)
+            ->where('school_id', auth()->user()->school_id)
+            ->get();
+
+        return view('classes.edit', compact('class', 'sections', 'teachers', 'classLevels'));
     }
 
     public function update(Request $request, ClassRoom $class)
@@ -75,14 +102,31 @@ class ClassController extends Controller
             'capacity' => 'nullable|integer|min:1',
             'teacher_id' => 'nullable|exists:teachers,id',
             'room_number' => 'nullable|string|max:20',
-            'notes' => 'nullable|string',
             'status' => 'required|in:active,inactive'
         ]);
 
-        $class->update($validated);
+        try {
+            $class->update([
+                'class_level_id' => $validated['class_level_id'],
+                'stream' => $validated['stream'],
+                'capacity' => $validated['capacity'],
+                'teacher_id' => $validated['teacher_id'],
+                'room_number' => $validated['room_number'],
+                'status' => $validated['status']
+            ]);
 
-        return redirect()->route('classes.index')
-            ->with('success', 'Class updated successfully.');
+            return redirect()->route('classes.index')
+                ->with('success', 'Class updated successfully.');
+        } catch (\Exception $e) {
+            \Log::error('Error updating class', [
+                'error' => $e->getMessage(),
+                'class_id' => $class->id
+            ]);
+
+            return back()
+                ->withInput()
+                ->withErrors(['error' => 'Error updating class: ' . $e->getMessage()]);
+        }
     }
 
     public function destroy(ClassRoom $class)
@@ -96,5 +140,22 @@ class ClassController extends Controller
 
         return redirect()->route('classes.index')
             ->with('success', 'Class deleted successfully.');
+    }
+
+    public function getClassLevels($sectionId)
+    {
+        try {
+            $classLevels = ClassLevel::where('section_id', $sectionId)
+                ->where('school_id', Auth::user()->school_id)
+                ->get(['id', 'name']);
+
+            return response()->json($classLevels);
+        } catch (\Exception $e) {
+            \Log::error('Error fetching class levels', [
+                'error' => $e->getMessage(),
+                'section_id' => $sectionId
+            ]);
+            return response()->json([], 500);
+        }
     }
 } 

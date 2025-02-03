@@ -55,7 +55,7 @@ class Student extends Model
 
     public function class()
     {
-        return $this->belongsTo(ClassRoom::class, 'class_room_id');
+        return $this->belongsTo(ClassRoom::class, 'classroom_id');
     }
 
     public function attendances()

@@ -49,6 +49,7 @@ Route::middleware(['auth'])->group(function () {
 
     // Student Management Routes
     Route::resource('students', StudentController::class);
+    Route::delete('/students/{student}', [StudentController::class, 'destroy'])->name('students.destroy');
 
     // Class Management Routes - Moved outside students prefix
     Route::resource('classes', ClassController::class);
@@ -96,6 +97,10 @@ Route::middleware(['auth'])->group(function () {
     Route::post('/api/{type}/store', [RolePermissionController::class, 'storePermissionOrRole'])->name('permissions.store');
     Route::post('/api/roles/{role}/permissions', [RolePermissionController::class, 'updatePermissions'])->name('roles.permissions.update');
     Route::delete('/api/permissions/{permission}', [RolePermissionController::class, 'deletePermission'])->name('permissions.delete');
+
+    // Add this inside your auth middleware group
+    Route::get('/api/sections/{section}/class-levels', [ClassController::class, 'getClassLevels'])
+        ->name('api.class-levels');
 });
 
 require __DIR__ . '/auth.php';
