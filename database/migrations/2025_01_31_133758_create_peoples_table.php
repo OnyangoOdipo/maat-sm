@@ -31,7 +31,7 @@ return new class extends Migration {
             $table->id();
             $table->foreignId('user_id')->constrained()->onDelete('cascade');
             $table->foreignId('school_id')->constrained()->onDelete('cascade');
-            $table->foreignId('class_room_id')->constrained()->onDelete('cascade');
+            $table->foreignId('classroom_id')->constrained()->onDelete('cascade');
             $table->string('admission_number')->unique();
             $table->string('roll_number');
             $table->date('date_of_birth');

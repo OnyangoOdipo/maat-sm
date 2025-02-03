@@ -22,7 +22,7 @@ class StudentSeeder extends Seeder
         Student::create([
             'user_id' => $user->id,
             'school_id' => 1,
-            'class_room_id' => 1,
+            'classroom_id' => 1,
             'admission_number' => 'STD-001',
             'roll_number' => '1',
             'date_of_birth' => '2015-05-15',
@@ -47,7 +47,7 @@ class StudentSeeder extends Seeder
         Student::create([
             'user_id' => $user->id,
             'school_id' => 1,
-            'class_room_id' => 2,
+            'classroom_id' => 2,
             'admission_number' => 'STD-002',
             'roll_number' => '2',
             'date_of_birth' => '2016-06-16',
@@ -72,7 +72,7 @@ class StudentSeeder extends Seeder
         Student::create([
             'user_id' => $user->id,
             'school_id' => 1,
-            'class_room_id' => 3,
+            'classroom_id' => 3,
             'admission_number' => 'STD-003',
             'roll_number' => '3',
             'date_of_birth' => '2017-07-17',
@@ -97,7 +97,7 @@ class StudentSeeder extends Seeder
         Student::create([
             'user_id' => $user->id,
             'school_id' => 1,
-            'class_room_id' => 4,
+            'classroom_id' => 4,
             'admission_number' => 'STD-004',
             'roll_number' => '4',
             'date_of_birth' => '2018-08-18',

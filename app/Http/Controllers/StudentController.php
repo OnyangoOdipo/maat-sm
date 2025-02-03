@@ -4,8 +4,11 @@ namespace App\Http\Controllers;
 
 use App\Models\Student;
 use App\Models\ClassRoom;
+use App\Models\User;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Str;
 
 class StudentController extends Controller
 {
@@ -17,7 +20,7 @@ class StudentController extends Controller
             ->paginate(10);
 
         // Get classes for the filter dropdown
-        $classes = ClassRoom::where('school_id', auth()->user()->school_id)
+        $classes = ClassRoom::where('school_id', Auth::user()->school_id)
             ->with('classLevel')
             ->get()
             ->map(function($class) {
@@ -32,57 +35,182 @@ class StudentController extends Controller
 
     public function create()
     {
-        $classes = auth()->user()->school->classes;
-        return view('students.create', compact('classes'));
+        try {
+            \Log::info('Create method called');
+            
+            // Check if user has a school
+            if (!Auth::user() || !Auth::user()->school) {
+                \Log::warning('User has no school', ['user_id' => Auth::id()]);
+                return redirect()->route('students.index')
+                    ->with('error', 'School information not found. Please contact administrator.');
+            }
+
+            $classes = ClassRoom::where('school_id', Auth::user()->school_id)
+                ->with('classLevel')
+                ->get();
+            
+            \Log::info('Classes retrieved', ['count' => $classes->count()]);
+
+            return view('students.create', compact('classes'));
+        } catch (\Exception $e) {
+            \Log::error('Error in create method', [
+                'error' => $e->getMessage(),
+                'trace' => $e->getTraceAsString()
+            ]);
+            
+            return redirect()->route('students.index')
+                ->with('error', 'An error occurred. Please try again.');
+        }
     }
 
     public function store(Request $request)
     {
-        $validated = $request->validate([
-            'name' => 'required|string|max:255',
-            'email' => 'required|email|unique:users,email',
-            'admission_number' => 'required|string|unique:students,admission_number',
-            'class_id' => 'required|exists:classes,id',
-            'roll_number' => 'required|string',
-            'date_of_birth' => 'required|date',
-            'gender' => 'required|in:male,female,other',
-            'address' => 'required|string',
-            'phone' => 'required|string',
-            'parent_name' => 'required|string',
-            'parent_phone' => 'required|string',
-        ]);
+        \Log::info('Store method called', ['request' => $request->all()]);
 
-        // Create user account
-        $user = User::create([
-            'name' => $validated['name'],
-            'email' => $validated['email'],
-            'password' => bcrypt('password'), // Set a default password
-            'role' => 'student',
-            'school_id' => auth()->user()->school_id,
-        ]);
+        // Check if user has a school
+        if (!Auth::user() || !Auth::user()->school_id) {
+            \Log::warning('No school found for user', ['user_id' => Auth::id()]);
+            return redirect()->route('students.index')
+                ->with('error', 'School information not found. Please contact administrator.');
+        }
 
-        // Create student record
-        $student = Student::create([
-            'user_id' => $user->id,
-            'school_id' => auth()->user()->school_id,
-            'class_id' => $validated['class_id'],
-            'admission_number' => $validated['admission_number'],
-            'roll_number' => $validated['roll_number'],
-            'date_of_birth' => $validated['date_of_birth'],
-            'gender' => $validated['gender'],
-            'address' => $validated['address'],
-            'phone' => $validated['phone'],
-            'parent_name' => $validated['parent_name'],
-            'parent_phone' => $validated['parent_phone'],
-        ]);
+        try {
+            // Generate admission number (Format: YEAR/SERIAL e.g., 2025/001)
+            $latestStudent = Student::where('school_id', Auth::user()->school_id)
+                ->whereYear('created_at', now()->year)
+                ->latest()
+                ->first();
 
-        return redirect()->route('students.index')
-            ->with('success', 'Student created successfully.');
+            $serialNumber = $latestStudent ? 
+                (int)substr($latestStudent->admission_number, -3) + 1 : 
+                1;
+            
+            $admissionNumber = sprintf('%d/%03d', now()->year, $serialNumber);
+
+            // Generate roll number (Format: CLASS-SERIAL e.g., 1A-001)
+            $classRoom = ClassRoom::find($request->classroom_id);
+            $latestClassStudent = Student::where('classroom_id', $request->classroom_id)
+                ->latest()
+                ->first();
+
+            $classSerialNumber = $latestClassStudent ? 
+                (int)substr($latestClassStudent->roll_number, -3) + 1 : 
+                1;
+            
+            $rollNumber = sprintf('%s-%03d', 
+                $classRoom->classLevel->name . $classRoom->stream, 
+                $classSerialNumber
+            );
+
+            $validated = $request->validate([
+                // User table fields
+                'name' => 'required|string|max:255',
+                'email' => 'required|email|unique:users,email',
+
+                // Student table fields
+                'classroom_id' => 'required|exists:classrooms,id',
+                'date_of_birth' => 'required|date',
+                'gender' => 'required|in:male,female,other',
+                'address' => 'required|string',
+                'phone' => 'nullable|string',
+                
+                // Parent information
+                'parent_name' => 'required|string',
+                'parent_phone' => 'required|string',
+                'parent_email' => 'nullable|email',
+                'parent_occupation' => 'nullable|string',
+                'parent_relationship' => 'required|in:father,mother,guardian',
+                
+                // Emergency contact
+                'emergency_contact_name' => 'nullable|string',
+                'emergency_contact_phone' => 'nullable|string',
+                'emergency_contact_relationship' => 'nullable|string',
+                
+                // Medical information
+                'medical_conditions' => 'nullable|string',
+                'allergies' => 'nullable|string',
+                'blood_group' => 'nullable|string',
+                
+                // Additional information
+                'admission_date' => 'required|date',
+                'status' => 'required|in:active,inactive,graduated,transferred',
+                'previous_school' => 'nullable|string',
+                'notes' => 'nullable|string',
+            ]);
+
+            \Log::info('Validation passed', ['validated' => $validated]);
+
+            DB::beginTransaction();
+
+            // Create user account
+            $user = User::create([
+                'name' => $validated['name'],
+                'email' => $validated['email'],
+                'password' => bcrypt(Str::random(12)), // Generate a random password
+                'role' => 'student',
+                'school_id' => Auth::user()->school_id,
+            ]);
+
+            \Log::info('User created', ['user_id' => $user->id]);
+
+            // Create student record with auto-generated numbers
+            $student = Student::create([
+                'user_id' => $user->id,
+                'school_id' => Auth::user()->school_id,
+                'classroom_id' => $validated['classroom_id'],
+                'admission_number' => $admissionNumber, // Auto-generated
+                'roll_number' => $rollNumber, // Auto-generated
+                'date_of_birth' => $validated['date_of_birth'],
+                'gender' => $validated['gender'],
+                'address' => $validated['address'],
+                'phone' => $validated['phone'],
+                'parent_name' => $validated['parent_name'],
+                'parent_phone' => $validated['parent_phone'],
+                'parent_email' => $validated['parent_email'],
+                'parent_occupation' => $validated['parent_occupation'],
+                'parent_relationship' => $validated['parent_relationship'],
+                'emergency_contact_name' => $validated['emergency_contact_name'],
+                'emergency_contact_phone' => $validated['emergency_contact_phone'],
+                'emergency_contact_relationship' => $validated['emergency_contact_relationship'],
+                'medical_conditions' => $validated['medical_conditions'],
+                'allergies' => $validated['allergies'],
+                'blood_group' => $validated['blood_group'],
+                'admission_date' => $validated['admission_date'],
+                'status' => $validated['status'],
+                'previous_school' => $validated['previous_school'],
+                'notes' => $validated['notes'],
+            ]);
+
+            \Log::info('Student created', [
+                'student_id' => $student->id,
+                'admission_number' => $admissionNumber,
+                'roll_number' => $rollNumber
+            ]);
+
+            DB::commit();
+
+            return redirect()->route('students.index')
+                ->with('success', 'Student created successfully.');
+        } catch (\Exception $e) {
+            DB::rollBack();
+            \Log::error('Error creating student', [
+                'error' => $e->getMessage(),
+                'trace' => $e->getTraceAsString(),
+                'request' => $request->all()
+            ]);
+
+            return back()
+                ->withInput()
+                ->withErrors(['error' => 'Error creating student: ' . $e->getMessage()]);
+        }
     }
 
     public function show(Student $student)
     {
-        $this->authorize('view', $student);
+        // Check if user has permission to view this student
+        if (Auth::user()->school_id !== $student->school_id) {
+            abort(403, 'Unauthorized action.');
+        }
         
         $student->load(['user', 'class', 'attendances', 'performances']);
         

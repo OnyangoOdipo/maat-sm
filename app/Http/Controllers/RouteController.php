@@ -60,10 +60,17 @@ class RouteController extends Controller
             'is_active' => true
         ]);
 
-        // Create stops
-        foreach ($validated['stops'] as $stop) {
-            $route->stops()->create($stop);
-        }
+        // Create stops with explicit sequence ordering
+        collect($validated['stops'])
+            ->sortBy('sequence')
+            ->each(function ($stop, $index) use ($route) {
+                $route->stops()->create([
+                    'name' => $stop['name'],
+                    'morning_time' => $stop['morning_time'],
+                    'evening_time' => $stop['evening_time'],
+                    'sequence' => $index + 1
+                ]);
+            });
 
         // Create route assignment
         $route->assignments()->create([

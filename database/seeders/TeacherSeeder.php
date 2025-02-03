@@ -28,7 +28,7 @@ class TeacherSeeder extends Seeder
             'address' => '123 Teacher Street',
             'phone' => '0712345678',
             'qualification' => 'B.Ed',
-            'specialization' => 'Mathematics',
+            //'subject_id' => 1,
             'joining_date' => now()->subYears(5),
             'status' => 'active'
         ]);
@@ -50,7 +50,7 @@ class TeacherSeeder extends Seeder
             'address' => '456 Teacher Lane',
             'phone' => '0789012345',
             'qualification' => 'M.Ed',
-            'specialization' => 'Science',
+            //'subject_id' => 2,
             'joining_date' => now()->subYears(3),
             'status' => 'active'
         ]);
@@ -72,7 +72,7 @@ class TeacherSeeder extends Seeder
             'address' => '789 Teacher Road',
             'phone' => '0711223344',
             'qualification' => 'Ph.D',
-            'specialization' => 'History',
+            //'subject_id' => 3,
             'joining_date' => now()->subYears(2),
             'status' => 'active'
         ]);
@@ -94,7 +94,7 @@ class TeacherSeeder extends Seeder
             'address' => '101 Teacher Avenue',
             'phone' => '0723456789',
             'qualification' => 'B.A',
-            'specialization' => 'English',
+            //'subject_id' => 4,
             'joining_date' => now()->subYears(4),
             'status' => 'active'
         ]);

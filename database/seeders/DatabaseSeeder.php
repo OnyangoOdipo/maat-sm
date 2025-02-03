@@ -14,17 +14,18 @@ class DatabaseSeeder extends Seeder
 public function run()
 {
     $this->call([
-        //SchoolSeeder::class,
-        //UsersTableSeeder::class,
-        //CurriculumTypeSeeder::class,
-        //SectionSeeder::class,
-        //ClassLevelSeeder::class,
-        //ClassroomSeeder::class, // Must come BEFORE StudentSeeder
-       // TeacherSeeder::class,
-       // SubjectSeeder::class,
-       // StudentSeeder::class,
+        SchoolSeeder::class,
+        UsersTableSeeder::class,
+        CurriculumTypeSeeder::class,
+        SectionSeeder::class,
+        ClassLevelSeeder::class,
+        ClassroomSeeder::class, // Must come BEFORE StudentSeeder
+        TeacherSeeder::class,
+        SubjectSeeder::class,
+        StudentSeeder::class,
         TeacherSubjectSeeder::class,
         ClassLevelSubjectSeeder::class,
+        RolesAndPermissionsSeeder::class,
     ]);
 }
 }

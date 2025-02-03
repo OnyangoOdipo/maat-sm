@@ -22,7 +22,7 @@ return new class extends Migration {
         });
 
         // Class Rooms
-        Schema::create('class_rooms', function (Blueprint $table) {
+        Schema::create('classrooms', function (Blueprint $table) {
             $table->id();
             $table->foreignId('school_id')->constrained()->onDelete('cascade');
             $table->foreignId('class_level_id')->constrained()->onDelete('cascade');

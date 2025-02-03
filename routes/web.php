@@ -40,29 +40,15 @@ Route::middleware(['auth'])->group(function () {
     Route::delete('/profile', [ProfileController::class, 'destroy'])->name('profile.destroy');
 
     // Simple dashboard routes without role middleware
-    Route::get('/superadmin', [DashboardController::class, 'superadmin'])->name('superadmin.dashboard');
+    Route::get('/superadmin', [DashboardController::class, 'superadmin'])->name('superadmin.dashboard')->middleware('role:Admin');
     Route::get('/schooladmin', [DashboardController::class, 'schooladmin'])->name('schooladmin.dashboard');
-    Route::get('/teacher', [DashboardController::class, 'teacher'])->name('teacher.dashboard');
+    Route::get('/teacher', [DashboardController::class, 'teacher'])->name('teacher.dashboard')->middleware('role:Teacher');
 
     // Schools management routes
     Route::resource('schools', SchoolController::class);
 
     // Student Management Routes
-    Route::prefix('students')->group(function () {
-        Route::get('/', [StudentController::class, 'index'])->name('students.index');
-        Route::get('/create', [StudentController::class, 'create'])->name('students.create');
-        Route::post('/', [StudentController::class, 'store'])->name('students.store');
-        Route::get('/{student}', [StudentController::class, 'show'])->name('students.show');
-        Route::get('/{student}/edit', [StudentController::class, 'edit'])->name('students.edit');
-        Route::put('/{student}', [StudentController::class, 'update'])->name('students.update');
-        Route::delete('/{student}', [StudentController::class, 'destroy'])->name('students.destroy');
-
-        // Attendance routes
-        Route::get('/{student}/attendance', [StudentAttendanceController::class, 'index'])->name('students.attendance');
-
-        // Academic Performance routes
-        Route::get('/{student}/performance', [StudentPerformanceController::class, 'index'])->name('students.performance');
-    });
+    Route::resource('students', StudentController::class);
 
     // Class Management Routes - Moved outside students prefix
     Route::resource('classes', ClassController::class);
@@ -103,7 +89,7 @@ Route::middleware(['auth'])->group(function () {
 
     // Roles and Permissions routes
     Route::get('/roles-permissions', [RolePermissionController::class, 'index'])->name('roles.permissions');
-    Route::get('/assign-permissions', [RolePermissionController::class, 'assignRolesView'])->name('assign.permissions')->middleware('role:Admin'); // Example of using role middleware
+    Route::get('/assign-permissions', [RolePermissionController::class, 'assignRolesView'])->name('assign.permissions'); // Example of using role middleware
     
     // TODO: Move the following routes to an API route file
     Route::post('/api/assign-roles', [RolePermissionController::class, 'assignRoles'])->name('assign.role');
