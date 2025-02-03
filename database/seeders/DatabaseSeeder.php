@@ -23,6 +23,9 @@ public function run()
         TeacherSeeder::class,
         SubjectSeeder::class,
         StudentSeeder::class,
+        TeacherSubjectSeeder::class,
+        ClassLevelSubjectSeeder::class,
+        RolesAndPermissionsSeeder::class,
     ]);
 }
 }

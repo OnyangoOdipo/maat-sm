@@ -5,20 +5,22 @@ namespace App\Models;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 
-class ClassRoom extends Model
+class Classroom extends Model
 {
     use HasFactory;
 
     protected $fillable = [
         'school_id',
-        'section_id',
         'class_level_id',
-        'stream',
+        'name',
         'capacity',
-        'teacher_id',
-        'room_number',
-        'status',
-        'notes'
+        'is_lab',
+        'is_active'
+    ];
+
+    protected $casts = [
+        'is_lab' => 'boolean',
+        'is_active' => 'boolean'
     ];
 
     // Relationships
@@ -27,35 +29,25 @@ class ClassRoom extends Model
         return $this->belongsTo(School::class);
     }
 
-    public function section()
-    {
-        return $this->belongsTo(Section::class);
-    }
-
     public function classLevel()
     {
         return $this->belongsTo(ClassLevel::class);
     }
 
-    public function teacher()
+    public function timetableSlots()
     {
-        return $this->belongsTo(Teacher::class);
-    }
-
-    public function students()
-    {
-        return $this->hasMany(Student::class);
+        return $this->hasMany(TimetableSlot::class);
     }
 
     // Scopes
     public function scopeActive($query)
     {
-        return $query->where('status', 'active');
+        return $query->where('is_active', true);
     }
 
     // Helper Methods
     public function getFullNameAttribute()
     {
-        return $this->classLevel->name . ' ' . $this->stream;
+        return $this->classLevel->name . ' ' . $this->name;
     }
 }

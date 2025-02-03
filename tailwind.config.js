@@ -7,17 +7,22 @@ export default {
         './vendor/laravel/framework/src/Illuminate/Pagination/resources/views/*.blade.php',
         './storage/framework/views/*.php',
         './resources/views/**/*.blade.php',
+        'node_modules/preline/dist/*.js',
     ],
 
     theme: {
         extend: {
             fontFamily: {
                 sans: ['Figtree', ...defaultTheme.fontFamily.sans],
+                'source-sans-pro': ['Source Sans Pro'],
+                'mitr': ['Mitr'],
+                'roboto-slab': ['Roboto Slab'],
             },
         },
     },
 
     plugins: [
         require('@tailwindcss/forms'),
+        require('preline/plugin'),
     ],
 };

@@ -10,36 +10,48 @@ class ClassLevel extends Model
     use HasFactory;
 
     protected $fillable = [
-        'section_id',
+        'school_id',
         'name',
         'numeric_value',
-        'order',
         'is_active'
     ];
 
     protected $casts = [
-        'is_active' => 'boolean',
+        'is_active' => 'boolean'
     ];
 
-    // Relationships
-    public function section()
+    public function school()
     {
-        return $this->belongsTo(Section::class);
+        return $this->belongsTo(School::class);
     }
 
-    public function classRooms()
+    public function subjects()
     {
-        return $this->hasMany(ClassRoom::class);
+        return $this->belongsToMany(Subject::class, 'class_level_subjects')
+            ->withPivot('lessons_per_week', 'is_compulsory')
+            ->withTimestamps();
     }
 
-    public function students()
+    public function classrooms()
     {
-        return $this->hasManyThrough(Student::class, ClassRoom::class);
+        return $this->hasMany(Classroom::class);
     }
 
-    // Helper Methods
-    public function getFullNameAttribute()
+    public function timeslots()
     {
-        return $this->section->name . ' - ' . $this->name;
+        return $this->hasMany(TimeSlot::class);
     }
-} 
+
+    public function timetables()
+    {
+        return $this->hasMany(Timetable::class);
+    }
+
+    // Helper method to get compulsory subjects
+    public function getCompulsorySubjects()
+    {
+        return $this->subjects()
+            ->wherePivot('is_compulsory', true)
+            ->get();
+    }
+}

@@ -8,7 +8,7 @@ return new class extends Migration
 {
     public function up()
     {
-        Schema::table('class_rooms', function (Blueprint $table) {
+        Schema::table('classrooms', function (Blueprint $table) {
             $table->foreignId('teacher_id')
                   ->nullable()
                   ->after('school_id')
