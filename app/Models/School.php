@@ -3,9 +3,13 @@
 namespace App\Models;
 
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\SoftDeletes;
+use Illuminate\Database\Eloquent\Factories\HasFactory;
 
 class School extends Model
 {
+    use HasFactory, SoftDeletes;
+
     protected $fillable = [
         'name',
         'address',
@@ -13,6 +17,11 @@ class School extends Model
         'email',
         'status',
         'subscription_status',
+    ];
+
+    protected $casts = [
+        'status' => 'string',
+        'subscription_status' => 'string',
     ];
 
     public function users()
@@ -30,8 +39,23 @@ class School extends Model
         return $this->hasMany(Student::class);
     }
 
+    public function sections()
+    {
+        return $this->hasMany(Section::class);
+    }
+
     public function classRooms()
     {
         return $this->hasMany(ClassRoom::class);
+    }
+
+    public function curriculumTypes()
+    {
+        return $this->hasMany(CurriculumType::class);
+    }
+
+    public function subjects()
+    {
+        return $this->hasMany(Subject::class);
     }
 }

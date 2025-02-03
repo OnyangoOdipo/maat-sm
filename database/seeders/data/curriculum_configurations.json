@@ -1,0 +1,131 @@
+{
+    "844": {
+        "name": "8-4-4 System",
+        "code": "844",
+        "description": "Kenyan 8-4-4 Education System",
+        "sections": [
+            {
+                "name": "Primary School",
+                "code": "PRI",
+                "class_levels": [
+                    {
+                        "name": "Standard 1",
+                        "code": "STD1",
+                        "subjects": [
+                            {
+                                "name": "Mathematics",
+                                "code": "MAT",
+                                "subject_type": "core",
+                                "is_compulsory": true
+                            },
+                            {
+                                "name": "English",
+                                "code": "ENG",
+                                "subject_type": "core",
+                                "is_compulsory": true
+                            },
+                            {
+                                "name": "Kiswahili",
+                                "code": "KIS",
+                                "subject_type": "core",
+                                "is_compulsory": true
+                            }
+                        ]
+                    }
+                ]
+            },
+            {
+                "name": "Secondary School",
+                "code": "SEC",
+                "class_levels": [
+                    {
+                        "name": "Form 1",
+                        "code": "F1",
+                        "subjects": [
+                            {
+                                "name": "Mathematics",
+                                "code": "MAT",
+                                "subject_type": "core",
+                                "is_compulsory": true
+                            },
+                            {
+                                "name": "English",
+                                "code": "ENG",
+                                "subject_type": "core",
+                                "is_compulsory": true
+                            },
+                            {
+                                "name": "Physics",
+                                "code": "PHY",
+                                "subject_type": "core",
+                                "is_compulsory": true
+                            }
+                        ]
+                    }
+                ]
+            }
+        ]
+    },
+    "CBC": {
+        "name": "Competency Based Curriculum",
+        "code": "CBC",
+        "description": "Kenyan Competency Based Curriculum",
+        "sections": [
+            {
+                "name": "Foundation Level",
+                "code": "FDN",
+                "class_levels": [
+                    {
+                        "name": "Pre-Primary 1",
+                        "code": "PP1",
+                        "subjects": [
+                            {
+                                "name": "Language Activities",
+                                "code": "LAN",
+                                "subject_type": "core",
+                                "is_compulsory": true
+                            },
+                            {
+                                "name": "Mathematical Activities",
+                                "code": "MAT",
+                                "subject_type": "core",
+                                "is_compulsory": true
+                            }
+                        ]
+                    }
+                ]
+            }
+        ]
+    },
+    "IGCSE": {
+        "name": "International General Certificate of Secondary Education",
+        "code": "IGCSE",
+        "description": "Cambridge International Education System",
+        "sections": [
+            {
+                "name": "Secondary Level",
+                "code": "SEC",
+                "class_levels": [
+                    {
+                        "name": "Year 7",
+                        "code": "Y7",
+                        "subjects": [
+                            {
+                                "name": "Mathematics",
+                                "code": "MAT",
+                                "subject_type": "core",
+                                "is_compulsory": true
+                            },
+                            {
+                                "name": "English",
+                                "code": "ENG",
+                                "subject_type": "core",
+                                "is_compulsory": true
+                            }
+                        ]
+                    }
+                ]
+            }
+        ]
+    }
+} 
