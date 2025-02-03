@@ -18,6 +18,11 @@ use App\Http\Controllers\RouteAssignmentController;
 use App\Http\Controllers\TimeSlotController;
 use App\Http\Controllers\TimetableController;
 use App\Http\Controllers\Auth\LoginController;
+use App\Http\Controllers\BoardingController;
+use App\Http\Controllers\HouseController;
+use App\Http\Controllers\CubicleController;
+use App\Http\Controllers\BedController;
+use App\Http\Controllers\BedAssignmentController;
 use Illuminate\Support\Facades\Route;
 
 Route::get('/', function () {
@@ -101,6 +106,19 @@ Route::middleware(['auth'])->group(function () {
     // Add this inside your auth middleware group
     Route::get('/api/sections/{section}/class-levels', [ClassController::class, 'getClassLevels'])
         ->name('api.class-levels');
+
+    // Boarding Management Routes
+    Route::prefix('boarding')->name('boarding.')->group(function () {
+        Route::get('/', [BoardingController::class, 'index'])->name('index');
+        Route::resource('houses', HouseController::class);
+        Route::resource('cubicles', CubicleController::class);
+        Route::resource('beds', BedController::class);
+        Route::post('/beds/{bed}/assign', [BedController::class, 'assignStudent'])->name('beds.assign');
+        Route::put('/beds/{bed}/unassign', [BedController::class, 'unassignStudent'])->name('beds.unassign');
+        Route::get('/assignments', [BedAssignmentController::class, 'index'])->name('assignments.index');
+        Route::post('/assignments', [BedAssignmentController::class, 'store'])->name('assignments.store');
+        Route::put('/assignments/{assignment}', [BedAssignmentController::class, 'update'])->name('assignments.update');
+    });
 });
 
 require __DIR__ . '/auth.php';
