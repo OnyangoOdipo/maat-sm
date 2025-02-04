@@ -96,38 +96,32 @@ After installation, you can log in with these default credentials:
 ## Key Features Guide
 
 ### School Types Management
-```bash
 # Access school types management
 URL: /school-types
 
-# Available categories:
+# Available categories
 - Boarding School
 - Day School
-```
 
 ### Teacher Management
-```bash
 # Access teacher management
 URL: /teachers
 
-# Features:
+# Features
 - Add/Edit teachers
 - Assign subjects
 - Set schedules
 - Track performance
-```
 
 ### Student Management
-```bash
 # Access student management
 URL: /students
 
-# Features:
+# Features
 - Registration
 - Class assignment
 - Attendance tracking
 - Grade management
-```
 
 ## Development
 
