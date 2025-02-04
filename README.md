@@ -1,8 +1,6 @@
-```markdown:README.md
 # School Management System
 
 A comprehensive school management system built with Laravel, designed to help schools manage their administrative tasks efficiently.
-
 
 ## Requirements
 
@@ -96,7 +94,7 @@ After installation, you can log in with these default credentials:
 ## Key Features Guide
 
 ### School Types Management
-# Access school types management
+**Access school types management**
 URL: /school-types
 
 # Available categories
@@ -104,7 +102,7 @@ URL: /school-types
 - Day School
 
 ### Teacher Management
-# Access teacher management
+**Access teacher management**
 URL: /teachers
 
 # Features
@@ -114,7 +112,7 @@ URL: /teachers
 - Track performance
 
 ### Student Management
-# Access student management
+**Access student management**
 URL: /students
 
 # Features
