@@ -4,6 +4,7 @@ namespace App\Http\Controllers\Auth;
 
 use App\Http\Controllers\Controller;
 use App\Models\User;
+use App\Models\School;
 use Illuminate\Auth\Events\Registered;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
@@ -12,15 +13,26 @@ use Illuminate\Support\Facades\Hash;
 use Illuminate\Validation\Rules;
 use Illuminate\View\View;
 use App\Providers\RouteServiceProvider;
+use App\Services\CurriculumSetupService;
+use Illuminate\Support\Facades\DB;
+use Illuminate\Validation\Rule;
 
 class RegisteredUserController extends Controller
 {
+    protected $curriculumSetupService;
+
+    public function __construct(CurriculumSetupService $curriculumSetupService)
+    {
+        $this->curriculumSetupService = $curriculumSetupService;
+    }
+
     /**
      * Display the registration view.
      */
     public function create(): View
     {
-        return view('auth.register');
+        $availableCurriculums = $this->curriculumSetupService->getAvailableCurriculums();
+        return view('auth.register', compact('availableCurriculums'));
     }
 
     /**
@@ -30,34 +42,55 @@ class RegisteredUserController extends Controller
      */
     public function store(Request $request): RedirectResponse
     {
+        $availableCurriculumCodes = $this->curriculumSetupService->getAvailableCurriculums()
+            ->pluck('code')
+            ->toArray();
+
         $request->validate([
+            // School Information
+            'school_name' => ['required', 'string', 'max:255'],
+            'address' => ['required', 'string'],
+            'school_phone' => ['required', 'string', 'max:20'],
+            'school_email' => ['required', 'string', 'email', 'max:255', 'unique:schools,email'],
+            
+            // Admin Information
             'name' => ['required', 'string', 'max:255'],
-            'email' => ['required', 'string', 'lowercase', 'email', 'max:255', 'unique:'.User::class],
-            'password' => ['required', 'confirmed', Rules\Password::defaults()],
+            'email' => ['required', 'string', 'email', 'max:255', 'unique:users'],
+            'password' => ['required', 'string', 'confirmed', 'min:8'],
+            
+            // Curriculum
+            'curriculums' => ['required', 'array', 'min:1'],
+            'curriculums.*' => ['required', 'string', Rule::in($availableCurriculumCodes)]
         ]);
 
-        $user = User::create([
-            'name' => $request->name,
-            'email' => $request->email,
-            'password' => Hash::make($request->password),
-            'role' => 'schooladmin', // Set default role or add role selection to registration form
-        ]);
+        DB::transaction(function () use ($request) {
+            // Create school
+            $school = School::create([
+                'name' => $request->school_name,
+                'address' => $request->address,
+                'phone' => $request->school_phone,
+                'email' => $request->school_email,
+                'status' => 'active',
+                'subscription_status' => 'trial'
+            ]);
 
-        event(new Registered($user));
+            // Create admin user
+            $user = User::create([
+                'name' => $request->name,
+                'email' => $request->email,
+                'password' => Hash::make($request->password),
+                'school_id' => $school->id,
+                'role' => 'schooladmin'
+            ]);
 
-        Auth::login($user);
+            event(new Registered($user));
 
-        // Redirect based on role
-        if ($user->role === 'superadmin') {
-            return redirect()->route('superadmin.dashboard');
-        }
-        if ($user->role === 'schooladmin') {
-            return redirect()->route('schooladmin.dashboard');
-        }
-        if ($user->role === 'teacher') {
-            return redirect()->route('teacher.dashboard');
-        }
-        
-        return redirect()->route('login');
+            Auth::login($user);
+
+            // Setup selected curriculums
+            $this->curriculumSetupService->setupCurriculum($school, $request->curriculums);
+        });
+
+        return redirect(RouteServiceProvider::HOME);
     }
 }

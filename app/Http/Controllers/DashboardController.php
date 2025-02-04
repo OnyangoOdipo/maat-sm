@@ -25,13 +25,22 @@ class DashboardController extends Controller
     public function schooladmin()
     {
         $school = auth()->user()->school;
-        $sections = Section::where('school_id', $school->id)
-            ->with(['classLevels.classrooms' => function($query) {
-                $query->withCount('students');
-            }])
-            ->get();
+        
+        $stats = [
+            'total_teachers' => Teacher::where('school_id', $school->id)->count(),
+            'active_teachers' => Teacher::where('school_id', $school->id)
+                ->where('status', 'active')
+                ->count(),
+            'total_classes' => ClassRoom::where('school_id', $school->id)->count()
+        ];
 
-        return view('dashboard.schooladmin', compact('sections'));
+        $recent_teachers = Teacher::where('school_id', $school->id)
+            ->with('user')
+            ->latest()
+            ->take(5)
+            ->get();
+        
+        return view('dashboards.schooladmin', compact('stats', 'recent_teachers'));
     }
 
     public function teacher()

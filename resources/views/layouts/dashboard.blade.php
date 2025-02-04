@@ -222,14 +222,14 @@
                 <!-- User Profile -->
                 <div class="p-4 border-t">
                     <div class="flex items-center justify-between">
-                        <div class="flex items-center">
-                            <div class="flex-shrink-0">
-                                <img class="h-8 w-8 rounded-full" src="https://ui-avatars.com/api/?name={{ auth()->user()->name }}" alt="{{ auth()->user()->name }}">
-                            </div>
-                            <div class="ml-3">
-                                <p class="text-sm font-medium text-gray-700">{{ auth()->user()->name }}</p>
-                                <p class="text-xs text-gray-500">School Admin</p>
-                            </div>
+                    <div class="flex items-center">
+                        <div class="flex-shrink-0">
+                            <img class="h-8 w-8 rounded-full" src="https://ui-avatars.com/api/?name={{ auth()->user()->name }}" alt="{{ auth()->user()->name }}">
+                        </div>
+                        <div class="ml-3">
+                            <p class="text-sm font-medium text-gray-700">{{ auth()->user()->name }}</p>
+                            <p class="text-xs text-gray-500">School Admin</p>
+                        </div>
                         </div>
                         <form method="POST" action="{{ route('logout') }}">
                             @csrf
